@@ -7,14 +7,23 @@ import (
 )
 
 type Config struct {
-	Env    string     `yaml:"env" env:"ENV" env-required:"true"`
-	Server HTTPServer `yaml:"http_server" env-required:"true"`
+	Env        string         `yaml:"env" env:"ENV" env-required:"true"`
+	HttpServer HTTPServer     `yaml:"http_server" env-required:"true"`
+	DbServer   DatabaseServer `yaml:"database_server" env-required:"true"`
 }
 
 type HTTPServer struct {
 	Addr        string        `yaml:"address" env-required:"true"`
 	Timeout     time.Duration `yaml:"timeout" env-default:"4s"`
 	IdleTimeout time.Duration `yaml:"idle_timeout" env-default:"60s"`
+}
+
+type DatabaseServer struct {
+	Ip       string `yaml:"ip" env-required:"true"`
+	Port     int    `yaml:"port" env-required:"true"`
+	Database string `yaml:"database" env-required:"true"`
+	User     string `yaml:"user" env-required:"true"`
+	Password string `yaml:"password" env-required:"true"`
 }
 
 func MustLoad() Config {
