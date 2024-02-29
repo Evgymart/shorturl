@@ -1,11 +1,11 @@
 package main
 
 import (
-	"database/sql"
 	"fmt"
 	_ "github.com/lib/pq"
 	"log/slog"
 	"main/internal/config"
+	"main/storage/postgres"
 	"os"
 )
 
@@ -16,22 +16,17 @@ const (
 )
 
 func main() {
-	conf := config.MustLoad()
-	fmt.Println(conf)
-	logger := setupLogger(conf.Env)
-	logger.Debug("Logger works", slog.String("env", conf.Env))
+	cfg := config.MustLoad()
+	fmt.Println(cfg)
+	logger := setupLogger(cfg.Env)
+	logger.Debug("Logger works", slog.String("env", cfg.Env))
 
-	psqlInfo := fmt.Sprintf("host=%s port=%d user=%s "+
-		"password=%s dbname=%s sslmode=disable",
-		conf.DbServer.Ip, conf.DbServer.Port, conf.DbServer.User, conf.DbServer.Password, conf.DbServer.Database)
-
-	db, err := sql.Open("postgres", psqlInfo)
+	psql, err := postgres.New(cfg)
 	if err != nil {
 		panic(err)
 	}
 
-	defer db.Close()
-	err = db.Ping()
+	err = psql.DB.Ping()
 	if err != nil {
 		panic(err)
 	}
