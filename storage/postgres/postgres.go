@@ -31,3 +31,19 @@ func New(cfg config.Config) (*Storage, error) {
 		DB: db,
 	}, nil
 }
+
+func (s *Storage) SaveURL(fullUrl string, alias string) error {
+	const operation = "storage.postgres.SaveURL"
+
+	stmt, err := s.DB.Prepare("INSERT INTO urls(`url`, `alias`) VALUES (?, ?)")
+	if err != nil {
+		return fmt.Errorf("%s: %w", operation, err)
+	}
+
+	_, err = stmt.Exec(fullUrl, alias)
+	if err != nil {
+		return fmt.Errorf("%s: %w", operation, err)
+	}
+
+	return nil
+}
