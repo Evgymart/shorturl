@@ -2,9 +2,15 @@ package postgres
 
 import (
 	"database/sql"
+	"errors"
 	"fmt"
-	_ "github.com/lib/pq"
+	"github.com/lib/pq"
 	"main/internal/config"
+	"main/storage"
+)
+
+const (
+	PSQL_UNIQUE_CONSTRAINT_VIOLATION = "23505"
 )
 
 type Storage struct {
@@ -41,6 +47,13 @@ func (s *Storage) SaveURL(fullUrl string, alias string) error {
 
 	_, err = stmt.Exec(fullUrl, alias)
 	if err != nil {
+		var psqlError *pq.Error
+		if errors.As(err, &psqlError) {
+			if psqlError.Code == PSQL_UNIQUE_CONSTRAINT_VIOLATION {
+				return fmt.Errorf("%s: %w", operation, storage.ErrUrlAlreadyExists)
+			}
+		}
+
 		return fmt.Errorf("%s: %w", operation, err)
 	}
 
