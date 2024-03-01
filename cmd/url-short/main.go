@@ -32,6 +32,8 @@ func main() {
 	}
 
 	fmt.Println("Successfully connected!")
+	err = psql.SaveURL("http://google.com", "sdfre")
+	fmt.Println(err)
 }
 
 func setupLogger(env string) *slog.Logger {

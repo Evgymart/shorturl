@@ -34,10 +34,9 @@ func New(cfg config.Config) (*Storage, error) {
 
 func (s *Storage) SaveURL(fullUrl string, alias string) error {
 	const operation = "storage.postgres.SaveURL"
-
-	stmt, err := s.DB.Prepare("INSERT INTO urls(`url`, `alias`) VALUES (?, ?)")
+	stmt, err := s.DB.Prepare("INSERT INTO urls (url, alias) VALUES ($1, $2)")
 	if err != nil {
-		return fmt.Errorf("%s: %w", operation, err)
+		return fmt.Errorf("STUFF %s: %w", operation, err)
 	}
 
 	_, err = stmt.Exec(fullUrl, alias)
