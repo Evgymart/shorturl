@@ -62,19 +62,18 @@ func (s *Storage) SaveURL(fullUrl string, alias string) error {
 
 func (s *Storage) GetURL(alias string) (string, error) {
 	const operation = "storage.postgres.GetURL"
-	rows, err := s.DB.Query("SELECT url FROM urls WHERE alias = $1 LIMIT 1", alias)
+	stmt, err := s.DB.Prepare("SELECT url FROM urls WHERE alias = $1 LIMIT 1")
 	if err != nil {
 		return "", fmt.Errorf("%s: %w", operation, err)
 	}
 
-	defer rows.Close()
 	var fullUrl string
-	rows.Next()
-	if err := rows.Scan(&fullUrl); err != nil {
-		return "", fmt.Errorf("%s: %w", operation, err)
+	err = stmt.QueryRow(alias).Scan(&fullUrl)
+	if errors.Is(err, sql.ErrNoRows) {
+		return "", fmt.Errorf("%s: %w", operation, storage.ErrUrlNotFound)
 	}
 
-	if err := rows.Err(); err != nil {
+	if err != nil {
 		return "", fmt.Errorf("%s: %w", operation, err)
 	}
 
