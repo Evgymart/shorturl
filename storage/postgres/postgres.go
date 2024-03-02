@@ -42,7 +42,7 @@ func (s *Storage) SaveURL(fullUrl string, alias string) error {
 	const operation = "storage.postgres.SaveURL"
 	stmt, err := s.DB.Prepare("INSERT INTO urls (url, alias) VALUES ($1, $2)")
 	if err != nil {
-		return fmt.Errorf("STUFF %s: %w", operation, err)
+		return fmt.Errorf("%s: %w", operation, err)
 	}
 
 	_, err = stmt.Exec(fullUrl, alias)
@@ -58,4 +58,25 @@ func (s *Storage) SaveURL(fullUrl string, alias string) error {
 	}
 
 	return nil
+}
+
+func (s *Storage) GetURL(alias string) (string, error) {
+	const operation = "storage.postgres.GetURL"
+	rows, err := s.DB.Query("SELECT url FROM urls WHERE alias = $1 LIMIT 1", alias)
+	if err != nil {
+		return "", fmt.Errorf("%s: %w", operation, err)
+	}
+
+	defer rows.Close()
+	var fullUrl string
+	rows.Next()
+	if err := rows.Scan(&fullUrl); err != nil {
+		return "", fmt.Errorf("%s: %w", operation, err)
+	}
+
+	if err := rows.Err(); err != nil {
+		return "", fmt.Errorf("%s: %w", operation, err)
+	}
+
+	return fullUrl, nil
 }
