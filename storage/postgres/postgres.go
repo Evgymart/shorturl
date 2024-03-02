@@ -79,3 +79,14 @@ func (s *Storage) GetURL(alias string) (string, error) {
 
 	return fullUrl, nil
 }
+
+func (s *Storage) DeleteURL(alias string) error {
+	const operation = "storage.postgres.DeleteURL"
+	stmt, err := s.DB.Prepare("DELETE FROM urls WHERE alias = $1")
+	if err != nil {
+		return fmt.Errorf("%s: %w", operation, err)
+	}
+
+	_, err = stmt.Exec(alias)
+	return err
+}

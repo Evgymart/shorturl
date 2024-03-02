@@ -36,6 +36,8 @@ func main() {
 	fmt.Println(err)
 	fullUrl, err := psql.GetURL("sdfre")
 	fmt.Println(err, fullUrl)
+	err = psql.DeleteURL("sdfre")
+	fmt.Println(err)
 }
 
 func setupLogger(env string) *slog.Logger {
