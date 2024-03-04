@@ -5,7 +5,9 @@ import (
 	_ "github.com/lib/pq"
 	"log/slog"
 	"main/internal/config"
+	"main/internal/http-server/handlers/url/save"
 	"main/storage/postgres"
+	"net/http"
 	"os"
 )
 
@@ -38,6 +40,13 @@ func main() {
 	fmt.Println(err, fullUrl)
 	err = psql.DeleteURL("sdfre")
 	fmt.Println(err)
+
+	mux := http.NewServeMux()
+	mux.HandleFunc("POST /save", save.New(logger, psql))
+	err = http.ListenAndServe("localhost:8090", mux)
+	if err != nil {
+		panic(err)
+	}
 }
 
 func setupLogger(env string) *slog.Logger {
