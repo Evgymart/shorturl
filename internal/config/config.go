@@ -7,9 +7,10 @@ import (
 )
 
 type Config struct {
-	Env        string         `yaml:"env" env:"ENV" env-required:"true"`
-	HttpServer HTTPServer     `yaml:"http_server" env-required:"true"`
-	DbServer   DatabaseServer `yaml:"database_server" env-required:"true"`
+	Env               string         `yaml:"env" env:"ENV" env-required:"true"`
+	HttpServer        HTTPServer     `yaml:"http_server" env-required:"true"`
+	DbServer          DatabaseServer `yaml:"database_server" env-required:"true"`
+	RandomAliasLength int            `yaml:"random_alias_length" env-default:"6"`
 }
 
 type HTTPServer struct {

@@ -42,7 +42,7 @@ func main() {
 	fmt.Println(err)
 
 	mux := http.NewServeMux()
-	mux.HandleFunc("POST /save", save.New(logger, psql))
+	mux.HandleFunc("POST /save", save.New(logger, &cfg, psql))
 	err = http.ListenAndServe("localhost:8090", mux)
 	if err != nil {
 		panic(err)

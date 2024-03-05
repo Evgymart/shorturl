@@ -9,3 +9,4 @@ database_server:
   database: "shorturl"
   user: "shorturl"
   password: "shorturl"
+random_alias_length: 6

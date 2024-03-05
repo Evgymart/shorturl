@@ -4,7 +4,9 @@ import (
 	"encoding/json"
 	"github.com/go-playground/validator/v10"
 	"log/slog"
+	"main/internal/config"
 	"main/internal/lib/api/response"
+	"main/internal/lib/random"
 	"net/http"
 )
 
@@ -14,16 +16,15 @@ type Request struct {
 }
 
 type Response struct {
-	Status string `json:"status"`
-	Error  string `json:"error,omitempty"`
-	Alias  string `json:"alias,omitempty"`
+	response.Response
+	Alias string `json:"alias,omitempty"`
 }
 
 type URLSaver interface {
 	SaveURL(fullUrl string, alias string) error
 }
 
-func New(log *slog.Logger, urlSaver URLSaver) http.HandlerFunc {
+func New(log *slog.Logger, cfg *config.Config, urlSaver URLSaver) http.HandlerFunc {
 	return func(writer http.ResponseWriter, request *http.Request) {
 		const operation = "handlers.url.save.New"
 		log = log.With(slog.String("operation", operation))
@@ -56,6 +57,10 @@ func New(log *slog.Logger, urlSaver URLSaver) http.HandlerFunc {
 		}
 
 		alias := req.Alias
+		if alias == "" {
+			alias = random.GenerateRandomAlias(cfg)
+		}
+
 		url := req.URL
 		err = urlSaver.SaveURL(alias, url)
 		if err != nil {
@@ -69,10 +74,20 @@ func New(log *slog.Logger, urlSaver URLSaver) http.HandlerFunc {
 			return
 		}
 
-		jsonResp, _ := json.Marshal(response.OK())
-		_, err = writer.Write(jsonResp)
+		err = responseOK(writer, alias)
 		if err != nil {
 			log.Error("Failed to write a response", err)
 		}
 	}
+}
+
+func responseOK(writer http.ResponseWriter, alias string) error {
+	jsonResp, _ := json.Marshal(
+		Response{
+			Response: response.OK(),
+			Alias:    alias,
+		},
+	)
+	_, err := writer.Write(jsonResp)
+	return err
 }
